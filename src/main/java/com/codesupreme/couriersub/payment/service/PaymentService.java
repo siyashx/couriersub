@@ -86,8 +86,8 @@ public class PaymentService {
 
             // ✅ Subscription ACTIVE et
             subscriptionService.activateMonthly(p.getUser());
+            // ✅ Sonra WhatsApp group add burada olacaq
             whatsAppGroupService.addToGroup(p.getUser().getPhone());
-            // ✅ Sonra WhatsApp group add burada olacaq (Mərhələ 7)
         } else {
             p.setStatus(PaymentStatus.FAILED);
             p.setTransactionId(transactionId);
