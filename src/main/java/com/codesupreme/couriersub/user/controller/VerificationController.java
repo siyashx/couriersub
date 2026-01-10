@@ -8,6 +8,7 @@ import com.codesupreme.couriersub.user.service.VerificationService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "https://mototaksi.az")
 @RestController
 @RequestMapping("/api/verify")
 public class VerificationController {

@@ -9,6 +9,7 @@ import com.codesupreme.couriersub.user.entity.User;
 import com.codesupreme.couriersub.user.repo.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "https://mototaksi.az")
 @RestController
 @RequestMapping("/api/me")
 public class SubscriptionController {

@@ -5,6 +5,7 @@ import com.codesupreme.couriersub.payment.dto.EpointWebhookRequest;
 import com.codesupreme.couriersub.payment.service.PaymentService;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "https://mototaksi.az")
 @RestController
 @RequestMapping("/api/payments/epoint")
 public class EpointWebhookController {

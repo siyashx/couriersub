@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "https://mototaksi.az")
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {

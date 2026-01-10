@@ -7,7 +7,7 @@ import com.codesupreme.couriersub.user.entity.User;
 import com.codesupreme.couriersub.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
+@CrossOrigin(origins = "https://mototaksi.az")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
