@@ -7,6 +7,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 
 @CrossOrigin(origins = "https://mototaksi.az")
 @RestController
@@ -33,7 +36,7 @@ public class EpointResultController {
     public ResponseEntity<Void> success(@RequestParam(required = false) String order_id) {
         // couriersub UI route-a göndər
         String to = "https://mototaksi.az/couriersub/success"
-                + (order_id != null ? "?orderId=" + order_id : "");
+                + (order_id != null ? "?orderId=" + URLEncoder.encode(order_id, StandardCharsets.UTF_8) : "");
         return ResponseEntity.status(302).header(HttpHeaders.LOCATION, to).build();
     }
 
@@ -41,7 +44,7 @@ public class EpointResultController {
     @GetMapping("/error")
     public ResponseEntity<Void> error(@RequestParam(required = false) String order_id) {
         String to = "https://mototaksi.az/couriersub/error"
-                + (order_id != null ? "?orderId=" + order_id : "");
+                + (order_id != null ? "?orderId=" + URLEncoder.encode(order_id, StandardCharsets.UTF_8) : "");
         return ResponseEntity.status(302).header(HttpHeaders.LOCATION, to).build();
     }
 }
