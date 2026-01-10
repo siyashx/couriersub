@@ -24,15 +24,18 @@ public class EpointService {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final RestClient rest;
+    private final String resultUrl;
 
     public EpointService(
             @Value("${epoint.publicKey}") String publicKey,
             @Value("${epoint.privateKey}") String privateKey,
-            @Value("${epoint.requestUrl:https://epoint.az/api/1/request}") String requestUrl
+            @Value("${epoint.requestUrl:https://epoint.az/api/1/request}") String requestUrl,
+            @Value("${epoint.resultUrl}") String resultUrl
     ) {
         this.publicKey = publicKey;
         this.privateKey = privateKey;
         this.requestUrl = requestUrl;
+        this.resultUrl = resultUrl;
 
         this.rest = RestClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -56,6 +59,7 @@ public class EpointService {
             dataMap.put("language", "az");
             dataMap.put("order_id", orderId);
             dataMap.put("description", (description == null || description.isBlank()) ? "Aylıq abunəlik (5 AZN)" : description);
+            dataMap.put("result_url", resultUrl);
             dataMap.put("success_redirect_url", successUrl);
             dataMap.put("error_redirect_url", errorUrl);
 
