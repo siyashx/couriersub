@@ -1,4 +1,8 @@
 package com.codesupreme.couriersub.common.enums;
 
-public class SubscriptionStatus {
+public enum SubscriptionStatus {
+    INACTIVE,
+    ACTIVE,
+    PAST_DUE,
+    CANCELED
 }

@@ -1,4 +1,7 @@
 package com.codesupreme.couriersub.common.enums;
 
-public class PaymentStatus {
+public enum PaymentStatus {
+    INITIATED,
+    SUCCESS,
+    FAILED
 }

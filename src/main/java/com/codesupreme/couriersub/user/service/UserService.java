@@ -1,6 +1,7 @@
 package com.codesupreme.couriersub.user.service;
 
 import com.codesupreme.couriersub.common.enums.UserRole;
+import com.codesupreme.couriersub.common.util.PhoneUtil;
 import com.codesupreme.couriersub.user.dto.LoginRequest;
 import com.codesupreme.couriersub.user.dto.RegisterRequest;
 import com.codesupreme.couriersub.user.entity.User;
@@ -17,7 +18,7 @@ public class UserService {
     }
 
     public User register(RegisterRequest req) {
-        String phone = req.getPhone().trim();
+        String phone = PhoneUtil.normalize(req.getPhone());
         if (users.existsByPhone(phone)) {
             throw new IllegalArgumentException("Bu telefon artıq qeydiyyatdan keçib");
         }
@@ -33,7 +34,8 @@ public class UserService {
     }
 
     public User login(LoginRequest req) {
-        User u = users.findByPhone(req.getPhone().trim())
+        String phone = PhoneUtil.normalize(req.getPhone());
+        User u = users.findByPhone(phone)
                 .orElseThrow(() -> new IllegalArgumentException("Telefon və ya şifrə yanlışdır"));
 
         if (!u.isActive()) {
