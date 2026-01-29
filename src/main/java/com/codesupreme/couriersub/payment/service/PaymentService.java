@@ -73,10 +73,12 @@ public class PaymentService {
         Payment p = payments.findByProviderOrderId(providerOrderId)
                 .orElseThrow(() -> new IllegalArgumentException("Payment tapılmadı: " + providerOrderId));
 
-        boolean ok = "SUCCESS".equalsIgnoreCase(status)
-                || "success".equalsIgnoreCase(status)
-                || "1".equalsIgnoreCase(status)
-                || "OK".equalsIgnoreCase(status);
+        String st = (status == null) ? "" : status.trim();
+
+        boolean ok = st.equalsIgnoreCase("Success")
+                || st.equalsIgnoreCase("SUCCESS")
+                || st.equalsIgnoreCase("OK")
+                || st.equalsIgnoreCase("1");
 
         if (ok) {
             p.setStatus(PaymentStatus.SUCCESS);
@@ -84,9 +86,7 @@ public class PaymentService {
             p.setPaidAt(LocalDateTime.now());
             payments.save(p);
 
-            // ✅ Subscription ACTIVE et
             subscriptionService.activateMonthly(p.getUser());
-            // ✅ Sonra WhatsApp group add burada olacaq
             whatsAppGroupService.addToGroup(p.getUser().getPhone());
         } else {
             p.setStatus(PaymentStatus.FAILED);
@@ -94,6 +94,7 @@ public class PaymentService {
             payments.save(p);
         }
     }
+
 
     public List<PaymentResponse> listMyPayments(String phone) {
         String p = PhoneUtil.normalize(phone);
@@ -114,22 +115,17 @@ public class PaymentService {
     }
 
     public void handleEpointResult(String dataEncoded, String signature) {
-        // 1) verify signature
         if (!epoint.verifySignature(dataEncoded, signature)) {
             throw new IllegalArgumentException("ePoint signature yanlışdır");
         }
 
-        // 2) parse decoded json
         var result = epoint.decodeResult(dataEncoded);
 
-        // result içindən lazım olanlar:
-        // order_id, status, transaction id (olarsa)
-        String orderId = result.orderId;
-        String status = result.status;
-        String transactionId = result.transactionId;
+        System.out.println("EPOINT RAW JSON => " + result.rawJson);
+        System.out.println("EPOINT PARSED => orderId=" + result.orderId + " status=" + result.status + " tx=" + result.transactionId);
 
-        // 3) DB update + subscription + group add/remove
-        handleWebhook(orderId, transactionId, status);
+        handleWebhook(result.orderId, result.transactionId, result.status);
     }
+
 
 }

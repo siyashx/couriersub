@@ -119,25 +119,37 @@ public class EpointService {
 
             JsonNode node = mapper.readTree(json);
 
+            // ✅ bəzən result {"data":{...}} kimi gəlir
+            if (node.has("data") && node.get("data").isObject()) {
+                node = node.get("data");
+            }
+
             DecodedResult r = new DecodedResult();
             r.rawJson = json;
 
-            // ⚠️ ePoint-in real result JSON strukturu fərqli ola bilər.
-            // Ona görə bir neçə ehtimalı yoxlayırıq:
+            // ✅ doc: order_id, status
             r.orderId = firstNonNull(node, "order_id", "orderId", "order");
             r.status  = firstNonNull(node, "status", "payment_status", "result");
 
-            // transaction id müxtəlif adlarla gələ bilər
-            r.transactionId = firstNonNull(node, "transaction", "transaction_id", "transactionId", "rrn");
+            // ✅ doc: transaction, bank_transaction, rrn
+            r.transactionId = firstNonNull(
+                    node,
+                    "transaction",
+                    "bank_transaction",
+                    "transaction_id",
+                    "transactionId",
+                    "rrn"
+            );
 
             if (r.orderId == null) throw new IllegalArgumentException("Result-də order_id tapılmadı: " + json);
-            if (r.status == null) throw new IllegalArgumentException("Result-də status tapılmadı: " + json);
+            if (r.status == null)  throw new IllegalArgumentException("Result-də status tapılmadı: " + json);
 
             return r;
         } catch (Exception e) {
             throw new IllegalArgumentException("Result decode xətası: " + e.getMessage());
         }
     }
+
 
     private String firstNonNull(JsonNode node, String... keys) {
         for (String k : keys) {
