@@ -31,11 +31,18 @@ public class EpointResultController {
         String d = (data != null) ? data : (cb != null ? cb.data : null);
         String s = (signature != null) ? signature : (cb != null ? cb.signature : null);
 
-        if (d == null || s == null) throw new IllegalArgumentException("Result body yanlışdır (data/signature boşdur)");
+        if (d == null || s == null) {
+            throw new IllegalArgumentException("Result body yanlışdır (data/signature boşdur)");
+        }
+
+        // URL-encoded plus problemi üçün:
+        d = d.replace(" ", "+");
+        s = s.replace(" ", "+");
 
         paymentService.handleEpointResult(d, s);
         return ApiResponse.ok("RESULT OK", null);
     }
+
 
 
     // ✅ user bura yönlənəcək (GET)
