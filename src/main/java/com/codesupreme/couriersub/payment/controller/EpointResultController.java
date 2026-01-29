@@ -22,7 +22,14 @@ public class EpointResultController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping(value = "/result", consumes = {"application/x-www-form-urlencoded", "application/json"})
+    @PostMapping(
+            value = "/result",
+            consumes = {
+                    "application/json",
+                    "application/x-www-form-urlencoded",
+                    "application/x-www-form-urlencoded;charset=UTF-8"
+            }
+    )
     public ApiResponse<Void> result(
             @RequestParam(required = false) String data,
             @RequestParam(required = false) String signature,
@@ -35,13 +42,14 @@ public class EpointResultController {
             throw new IllegalArgumentException("Result body yanlışdır (data/signature boşdur)");
         }
 
-        // URL-encoded plus problemi üçün:
+        // URL-encoded plus problemi (çox rast gəlinir)
         d = d.replace(" ", "+");
         s = s.replace(" ", "+");
 
         paymentService.handleEpointResult(d, s);
         return ApiResponse.ok("RESULT OK", null);
     }
+
 
 
 
