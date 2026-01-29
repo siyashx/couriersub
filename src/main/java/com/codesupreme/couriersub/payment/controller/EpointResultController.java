@@ -22,14 +22,21 @@ public class EpointResultController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping("/result")
-    public ApiResponse<Void> result(@RequestBody EpointResultCallback cb) {
-        if (cb == null || cb.data == null || cb.signature == null) {
-            throw new IllegalArgumentException("Result body yanlışdır");
-        }
-        paymentService.handleEpointResult(cb.data, cb.signature);
+    @PostMapping(value = "/result", consumes = {"application/x-www-form-urlencoded", "application/json"})
+    public ApiResponse<Void> result(
+            @RequestParam(required = false) String data,
+            @RequestParam(required = false) String signature,
+            @RequestBody(required = false) EpointResultCallback cb
+    ) {
+        String d = (data != null) ? data : (cb != null ? cb.data : null);
+        String s = (signature != null) ? signature : (cb != null ? cb.signature : null);
+
+        if (d == null || s == null) throw new IllegalArgumentException("Result body yanlışdır (data/signature boşdur)");
+
+        paymentService.handleEpointResult(d, s);
         return ApiResponse.ok("RESULT OK", null);
     }
+
 
     // ✅ user bura yönlənəcək (GET)
     @GetMapping("/success")

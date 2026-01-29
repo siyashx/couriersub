@@ -45,7 +45,7 @@ public class PaymentService {
 
         Payment p = new Payment();
         p.setUser(u);
-        p.setAmountInt(500); // 5 AZN
+        p.setAmountInt(0); // 5 AZN
         p.setStatus(PaymentStatus.INITIATED);
 
         String providerOrderId = epoint.createProviderOrderId();
