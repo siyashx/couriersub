@@ -22,36 +22,27 @@ public class EpointResultController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping(
-            value = "/result",
-            consumes = {
-                    "application/json",
-                    "application/x-www-form-urlencoded",
-                    "application/x-www-form-urlencoded;charset=UTF-8"
-            }
-    )
-    public ApiResponse<Void> result(
-            @RequestParam(required = false) String data,
-            @RequestParam(required = false) String signature,
-            @RequestBody(required = false) EpointResultCallback cb
-    ) {
-        String d = (data != null) ? data : (cb != null ? cb.data : null);
-        String s = (signature != null) ? signature : (cb != null ? cb.signature : null);
-
-        if (d == null || s == null) {
-            throw new IllegalArgumentException("Result body yanlışdır (data/signature boşdur)");
+    @PostMapping(value = "/result", consumes = "application/json")
+    public ApiResponse<Void> resultJson(@RequestBody EpointResultCallback cb) {
+        if (cb == null || cb.data == null || cb.signature == null) {
+            throw new IllegalArgumentException("Result body yanlışdır");
         }
-
-        // URL-encoded plus problemi (çox rast gəlinir)
-        d = d.replace(" ", "+");
-        s = s.replace(" ", "+");
-
+        String d = cb.data.replace(" ", "+");
+        String s = cb.signature.replace(" ", "+");
         paymentService.handleEpointResult(d, s);
         return ApiResponse.ok("RESULT OK", null);
     }
 
-
-
+    @PostMapping(value = "/result", consumes = "application/x-www-form-urlencoded")
+    public ApiResponse<Void> resultForm(
+            @RequestParam("data") String data,
+            @RequestParam("signature") String signature
+    ) {
+        String d = data.replace(" ", "+");
+        String s = signature.replace(" ", "+");
+        paymentService.handleEpointResult(d, s);
+        return ApiResponse.ok("RESULT OK", null);
+    }
 
     // ✅ user bura yönlənəcək (GET)
     @GetMapping("/success")
