@@ -5,7 +5,6 @@ import com.codesupreme.couriersub.subscription.entity.Subscription;
 import com.codesupreme.couriersub.subscription.repo.SubscriptionRepository;
 import com.codesupreme.couriersub.user.entity.User;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 
 @Service
@@ -31,9 +30,20 @@ public class SubscriptionService {
         Subscription s = getOrCreate(user);
         LocalDateTime now = LocalDateTime.now();
 
+        // Növbəti ayın 1-i, saat 23:59
+        LocalDateTime nextMonthFirstDayEnd = now.toLocalDate()
+                .withDayOfMonth(1)
+                .plusMonths(1)
+                .atTime(23, 59, 0);
+
         s.setStatus(SubscriptionStatus.ACTIVE);
+
+        // Ödəniş edildiyi an
         s.setCurrentPeriodStart(now);
-        s.setCurrentPeriodEnd(now.plusDays(30)); // istəsən 1 ay məntiqi də edə bilərik
+
+        // Güzəştli son vaxt: gələn ayın 1-i 23:59
+        s.setCurrentPeriodEnd(nextMonthFirstDayEnd);
+
         return subs.save(s);
     }
 }
