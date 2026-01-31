@@ -18,7 +18,15 @@ public class WhatsAppGroupController {
 
     @GetMapping("/participant")
     public Map<String, Object> isParticipant(@RequestParam String phone) {
-        boolean inGroup = whatsAppGroupService.isParticipantInGroup(phone);
-        return Map.of("inGroup", inGroup);
+        try {
+            boolean inGroup = whatsAppGroupService.isParticipantInGroup(phone);
+            return Map.of("inGroup", inGroup);
+        } catch (Exception ex) {
+            return Map.of(
+                    "inGroup", null,
+                    "message", "WhatsApp qrupu yoxlanılmadı (Evolution API cavab vermədi)."
+            );
+        }
     }
 }
+
