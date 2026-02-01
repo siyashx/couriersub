@@ -76,7 +76,6 @@ public class WhatsAppGroupService {
     }
 
 
-
     @SuppressWarnings("unchecked")
     private Map<String, Object> fetchParticipantsRaw() {
         Object obj = rest.get()
