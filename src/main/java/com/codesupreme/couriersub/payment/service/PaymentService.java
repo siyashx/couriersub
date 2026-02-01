@@ -10,6 +10,7 @@ import com.codesupreme.couriersub.payment.repo.PaymentRepository;
 import com.codesupreme.couriersub.subscription.service.SubscriptionService;
 import com.codesupreme.couriersub.user.entity.User;
 import com.codesupreme.couriersub.user.repo.UserRepository;
+import com.codesupreme.couriersub.whatsapp.evolution.EvolutionNotifyService;
 import com.codesupreme.couriersub.whatsapp.group.WhatsAppGroupService;
 import org.springframework.stereotype.Service;
 
@@ -25,17 +26,19 @@ public class PaymentService {
     private final SubscriptionService subscriptionService;
 
     private final WhatsAppGroupService whatsAppGroupService;
+    private final EvolutionNotifyService evolutionNotifyService;
 
     public PaymentService(UserRepository users,
                           PaymentRepository payments,
                           EpointService epoint,
                           SubscriptionService subscriptionService,
-                          WhatsAppGroupService whatsAppGroupService) {
+                          WhatsAppGroupService whatsAppGroupService, EvolutionNotifyService evolutionNotifyService) {
         this.users = users;
         this.payments = payments;
         this.epoint = epoint;
         this.subscriptionService = subscriptionService;
         this.whatsAppGroupService = whatsAppGroupService;
+        this.evolutionNotifyService = evolutionNotifyService;
     }
 
 
@@ -87,7 +90,10 @@ public class PaymentService {
             payments.save(p);
 
             subscriptionService.activateMonthly(p.getUser());
+            // 1) qrupa elave
             whatsAppGroupService.addToGroup(p.getUser().getPhone());
+            // 2) admin-e mesaj
+            evolutionNotifyService.notifyAddedToGroup(p.getUser().getPhone());
         } else {
             p.setStatus(PaymentStatus.FAILED);
             p.setTransactionId(transactionId);
