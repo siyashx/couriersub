@@ -44,23 +44,6 @@ public class WhatsAppGroupService {
     public void removeFromGroup(String phone) {
         updateParticipant("remove", phone);
     }
-
-    public boolean isParticipantInGroup(String phone) {
-        String normalized = PhoneUtil.normalize(phone); // "99455...."
-        String waJid = normalized + "@s.whatsapp.net";
-
-        Map<String, Object> resp = fetchParticipantsRaw();
-        if (resp == null || resp.isEmpty()) return false;
-
-        Set<String> ids = extractParticipantIds(resp);
-
-        // 1) normal jid match
-        if (ids.stream().anyMatch(x -> x.equalsIgnoreCase(waJid))) return true;
-
-        // 2) some APIs may return plain "994..." or "055..."
-        return ids.stream().anyMatch(x -> x.equalsIgnoreCase(normalized));
-    }
-
     private void updateParticipant(String action, String phone) {
         String normalized = PhoneUtil.normalize(phone);
 
@@ -75,6 +58,24 @@ public class WhatsAppGroupService {
                 .retrieve()
                 .toBodilessEntity();
     }
+
+    public boolean isParticipantInGroup(String phone) {
+        String normalized = PhoneUtil.normalize(phone); // "99455...."
+        String waJid = (normalized + "@s.whatsapp.net").toLowerCase();
+
+        Map<String, Object> resp = fetchParticipantsRaw();
+        if (resp == null || resp.isEmpty()) return false;
+
+        Set<String> ids = extractParticipantIds(resp);
+
+        // ✅ real response -> phoneNumber: "994...@s.whatsapp.net"
+        if (ids.contains(waJid)) return true;
+
+        // ehtiyat: bəzən plain "994..." gələ bilər
+        return ids.contains(normalized.toLowerCase());
+    }
+
+
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> fetchParticipantsRaw() {
@@ -92,9 +93,9 @@ public class WhatsAppGroupService {
     /**
      * Supports response shapes:
      * - {"participants":[ "994..@s.whatsapp.net", ... ]}
+     * - {"participants":[{"id":"..@lid","phoneNumber":"994..@s.whatsapp.net"}]}
      * - {"response":{"participants":[...]}}
      * - {"data":{"participants":[...]}}
-     * - {"participants":[{"id":".."},{"participantAlt":"994..@s.whatsapp.net"}]}
      */
     @SuppressWarnings("unchecked")
     private Set<String> extractParticipantIds(Map<String, Object> resp) {
@@ -116,17 +117,21 @@ public class WhatsAppGroupService {
             if (item == null) continue;
 
             if (item instanceof String s) {
-                out.add(s.trim());
+                out.add(s.trim().toLowerCase());
                 continue;
             }
 
             if (item instanceof Map<?, ?> m0) {
                 Map<String, Object> m = (Map<String, Object>) m0;
 
+                // ✅ SƏNİN RESPONSE-DA ƏSAS FIELD
+                addIfString(out, m.get("phoneNumber"));
+
+                // ehtiyat field-lar
                 addIfString(out, m.get("id"));
                 addIfString(out, m.get("jid"));
                 addIfString(out, m.get("participant"));
-                addIfString(out, m.get("participantAlt")); // lid mode üçün çox vacib
+                addIfString(out, m.get("participantAlt"));
                 addIfString(out, m.get("wid"));
 
                 Object key = m.get("key");
@@ -139,15 +144,15 @@ public class WhatsAppGroupService {
         return out;
     }
 
+    private void addIfString(Set<String> out, Object v) {
+        if (v instanceof String s && !s.isBlank()) out.add(s.trim().toLowerCase());
+    }
+
     private Object unwrap(Map<String, Object> resp) {
         Object r = resp.get("response");
         if (r != null) return r;
         Object d = resp.get("data");
         if (d != null) return d;
         return resp;
-    }
-
-    private void addIfString(Set<String> out, Object v) {
-        if (v instanceof String s && !s.isBlank()) out.add(s.trim());
     }
 }
