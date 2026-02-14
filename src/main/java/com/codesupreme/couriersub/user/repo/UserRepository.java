@@ -11,5 +11,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByPhone(String phone);
     boolean existsByPhone(String phone);
     List<User> findByVerifyStatus(VerifyStatus verifyStatus);
+    // ✅ BUNU ƏLAVƏ ET
+    Optional<User> findByReferralCode(String referralCode);
+
+    // ✅ (ref count üçün)
+    long countByReferredBy(User referredBy);
 
 }

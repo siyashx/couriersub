@@ -7,6 +7,7 @@ import com.codesupreme.couriersub.payment.dto.InitPaymentResponse;
 import com.codesupreme.couriersub.payment.dto.PaymentResponse;
 import com.codesupreme.couriersub.payment.entity.Payment;
 import com.codesupreme.couriersub.payment.repo.PaymentRepository;
+import com.codesupreme.couriersub.referral.service.ReferralService;
 import com.codesupreme.couriersub.subscription.service.SubscriptionService;
 import com.codesupreme.couriersub.user.entity.User;
 import com.codesupreme.couriersub.user.repo.UserRepository;
@@ -27,18 +28,20 @@ public class PaymentService {
 
     private final WhatsAppGroupService whatsAppGroupService;
     private final EvolutionNotifyService evolutionNotifyService;
+    private final ReferralService referralService;
 
     public PaymentService(UserRepository users,
                           PaymentRepository payments,
                           EpointService epoint,
                           SubscriptionService subscriptionService,
-                          WhatsAppGroupService whatsAppGroupService, EvolutionNotifyService evolutionNotifyService) {
+                          WhatsAppGroupService whatsAppGroupService, EvolutionNotifyService evolutionNotifyService, ReferralService referralService) {
         this.users = users;
         this.payments = payments;
         this.epoint = epoint;
         this.subscriptionService = subscriptionService;
         this.whatsAppGroupService = whatsAppGroupService;
         this.evolutionNotifyService = evolutionNotifyService;
+        this.referralService = referralService;
     }
 
 
@@ -94,6 +97,11 @@ public class PaymentService {
             whatsAppGroupService.addToGroup(p.getUser().getPhone());
             // 2) admin-e mesaj
             evolutionNotifyService.notifyAddedToGroup(p.getUser().getPhone());
+
+            // ✅ REFERRAL REWARD (yalnız APPROVED olanlar üçün)
+            if (p.getUser().getVerifyStatus() == com.codesupreme.couriersub.common.enums.VerifyStatus.APPROVED) {
+                referralService.rewardIfEligible(p.getUser());
+            }
         } else {
             p.setStatus(PaymentStatus.FAILED);
             p.setTransactionId(transactionId);

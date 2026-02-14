@@ -42,6 +42,23 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    // User.java
+
+    @Column(length = 30, unique = true)
+    private String referralCode; // məsələn "AB12CD34"
+
+    @ManyToOne
+    @JoinColumn(name = "referred_by_user_id")
+    private User referredBy; // dəvət edən user (nullable)
+
+    // getters/setters
+    public String getReferralCode() { return referralCode; }
+    public void setReferralCode(String referralCode) { this.referralCode = referralCode; }
+
+    public User getReferredBy() { return referredBy; }
+    public void setReferredBy(User referredBy) { this.referredBy = referredBy; }
+
+
     // getters/setters
     public Long getId() { return id; }
 

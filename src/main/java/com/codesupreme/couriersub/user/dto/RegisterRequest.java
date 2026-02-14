@@ -16,6 +16,11 @@ public class RegisterRequest {
     @NotBlank
     private String password;
 
+    private String referralCode; // ✅ yeni
+
+    public String getReferralCode() { return referralCode; }
+    public void setReferralCode(String referralCode) { this.referralCode = referralCode; }
+
     // getters/setters
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

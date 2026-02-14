@@ -19,18 +19,37 @@ public class UserService {
 
     public User register(RegisterRequest req) {
         String phone = PhoneUtil.normalize(req.getPhone());
-        if (users.existsByPhone(phone)) {
-            throw new IllegalArgumentException("Bu telefon artıq qeydiyyatdan keçib");
-        }
+        if (users.existsByPhone(phone)) throw new IllegalArgumentException("Bu telefon artıq qeydiyyatdan keçib");
 
         User u = new User();
         u.setFirstName(req.getFirstName().trim());
         u.setLastName(req.getLastName().trim());
         u.setPhone(phone);
-        u.setPassword(req.getPassword()); // plain text
+        u.setPassword(req.getPassword());
         u.setRole(UserRole.COURIER);
 
-        return users.save(u);
+        // ✅ referredBy set et
+        if (req.getReferralCode() != null && !req.getReferralCode().isBlank()) {
+            users.findByReferralCode(req.getReferralCode().trim().toUpperCase())
+                    .ifPresent(u::setReferredBy);
+        }
+
+        // save first
+        u = users.save(u);
+
+        // ✅ referralCode (öz dəvət kodu) ver
+        // bunu burada da edə bilərsən, ya ReferralService içində
+        // sadə: burada manual:
+        if (u.getReferralCode() == null) {
+            // unique code tap
+            String code;
+            do { code = com.codesupreme.couriersub.common.util.ReferralUtil.generateCode(8); }
+            while (users.findByReferralCode(code).isPresent());
+            u.setReferralCode(code);
+            u = users.save(u);
+        }
+
+        return u;
     }
 
     public User login(LoginRequest req) {
