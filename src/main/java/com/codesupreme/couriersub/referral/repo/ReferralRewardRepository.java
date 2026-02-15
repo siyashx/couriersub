@@ -13,7 +13,4 @@ public interface ReferralRewardRepository extends JpaRepository<ReferralReward, 
 
     // inviter neçə nəfər dəvət edib (reward sayı)
     int countByInviter(User inviter);
-
-    // (istəsən) balans üçün cəmi
-    int sumAmountIntByInviter(User inviter);
 }
