@@ -86,7 +86,7 @@ public class AdminService {
 
         // ✅ REFERRAL: balans + dəvət sayı
         d.balanceInt = referralWallets.findByUser(u).map(ReferralWallet::getBalanceInt).orElse(0);
-        d.invitedCount = referralRewards.countByReferrer(u);
+        d.invitedCount = referralRewards.countByInviter(u);
 
         return d;
     }
