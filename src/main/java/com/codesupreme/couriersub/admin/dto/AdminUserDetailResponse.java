@@ -21,4 +21,8 @@ public class AdminUserDetailResponse {
     public LocalDateTime docsSubmittedAt;
 
     public String adminNote;
+
+    // ✅ REFERRAL
+    public Integer invitedCount; // neçə nəfər dəvət edib
+    public Integer balanceInt;   // qəpiklə (100 = 1.00 AZN)
 }

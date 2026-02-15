@@ -99,9 +99,7 @@ public class PaymentService {
             evolutionNotifyService.notifyAddedToGroup(p.getUser().getPhone());
 
             // ✅ REFERRAL REWARD (yalnız APPROVED olanlar üçün)
-            if (p.getUser().getVerifyStatus() == com.codesupreme.couriersub.common.enums.VerifyStatus.APPROVED) {
-                referralService.rewardIfEligible(p.getUser());
-            }
+            referralService.rewardIfEligible(p.getUser());
         } else {
             p.setStatus(PaymentStatus.FAILED);
             p.setTransactionId(transactionId);

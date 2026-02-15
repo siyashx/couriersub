@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface ReferralRewardRepository extends JpaRepository<ReferralReward, Long> {
     Optional<ReferralReward> findByInvitee(User invitee);
+    int countByReferrer(User referrer);
 }

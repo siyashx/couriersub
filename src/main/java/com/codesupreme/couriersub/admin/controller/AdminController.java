@@ -1,5 +1,6 @@
 package com.codesupreme.couriersub.admin.controller;
 
+import com.codesupreme.couriersub.admin.dto.AdjustBalanceRequest;
 import com.codesupreme.couriersub.admin.dto.AdminDecisionRequest;
 import com.codesupreme.couriersub.admin.dto.AdminUserDetailResponse;
 import com.codesupreme.couriersub.admin.dto.AdminUserListItem;
@@ -65,5 +66,15 @@ public class AdminController {
         admin.forceRemoveFromGroup(id);
         return ApiResponse.ok("Qrupdan çıxarıldı", null);
     }
+
+    @PostMapping("/users/{id}/adjust-balance")
+    public ApiResponse<Void> adjustBalance(
+            @PathVariable Long id,
+            @RequestBody AdjustBalanceRequest req
+    ) {
+        admin.adjustBalance(id, req);
+        return ApiResponse.ok("Balans yeniləndi", null);
+    }
+
 
 }

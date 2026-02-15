@@ -1,9 +1,13 @@
 package com.codesupreme.couriersub.admin.service;
 
+import com.codesupreme.couriersub.admin.dto.AdjustBalanceRequest;
 import com.codesupreme.couriersub.admin.dto.AdminDecisionRequest;
 import com.codesupreme.couriersub.admin.dto.AdminUserDetailResponse;
 import com.codesupreme.couriersub.admin.dto.AdminUserListItem;
 import com.codesupreme.couriersub.common.enums.VerifyStatus;
+import com.codesupreme.couriersub.referral.entity.ReferralWallet;
+import com.codesupreme.couriersub.referral.repo.ReferralRewardRepository;
+import com.codesupreme.couriersub.referral.repo.ReferralWalletRepository;
 import com.codesupreme.couriersub.user.entity.User;
 import com.codesupreme.couriersub.user.entity.UserVerification;
 import com.codesupreme.couriersub.user.repo.UserRepository;
@@ -21,10 +25,16 @@ public class AdminService {
 
     private final WhatsAppGroupService groupService;
 
-    public AdminService(UserRepository users, UserVerificationRepository verifications, WhatsAppGroupService groupService) {
+    // ✅ əlavə et
+    private final ReferralWalletRepository referralWallets;
+    private final ReferralRewardRepository referralRewards;
+
+    public AdminService(UserRepository users, UserVerificationRepository verifications, WhatsAppGroupService groupService, ReferralWalletRepository referralWallets, ReferralRewardRepository referralRewards) {
         this.users = users;
         this.verifications = verifications;
         this.groupService = groupService;
+        this.referralWallets = referralWallets;
+        this.referralRewards = referralRewards;
     }
 
 
@@ -73,6 +83,10 @@ public class AdminService {
             d.docsSubmittedAt = uv.getDocsSubmittedAt();
             d.adminNote = uv.getAdminNote();
         }
+
+        // ✅ REFERRAL: balans + dəvət sayı
+        d.balanceInt = referralWallets.findByUser(u).map(ReferralWallet::getBalanceInt).orElse(0);
+        d.invitedCount = referralRewards.countByReferrer(u);
 
         return d;
     }
@@ -127,5 +141,32 @@ public class AdminService {
         User u = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User tapılmadı"));
         groupService.removeFromGroup(u.getPhone());
     }
+
+    public void adjustBalance(Long userId, AdjustBalanceRequest req) {
+        if (req == null || req.amountInt == null) {
+            throw new IllegalArgumentException("Məbləğ göndərilməlidir");
+        }
+
+        User u = users.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User tapılmadı"));
+
+        ReferralWallet wallet = referralWallets.findByUser(u)
+                .orElseGet(() -> {
+                    ReferralWallet w = new ReferralWallet();
+                    w.setUser(u);
+                    w.setBalanceInt(0);
+                    return referralWallets.save(w);
+                });
+
+        int newBalance = wallet.getBalanceInt() + req.amountInt;
+
+        if (newBalance < 0) {
+            throw new IllegalArgumentException("Balans mənfi ola bilməz");
+        }
+
+        wallet.setBalanceInt(newBalance);
+        referralWallets.save(wallet);
+    }
+
 
 }
