@@ -1,6 +1,7 @@
 package com.codesupreme.couriersub.user.controller;
 
 import com.codesupreme.couriersub.common.ApiResponse;
+import com.codesupreme.couriersub.common.util.PhoneUtil;
 import com.codesupreme.couriersub.user.dto.LoginRequest;
 import com.codesupreme.couriersub.user.dto.RegisterRequest;
 import com.codesupreme.couriersub.user.entity.User;
@@ -37,13 +38,15 @@ public class AuthController {
     // Postman test üçün: phone ilə user məlumatını görmək
     @GetMapping("/by-phone")
     public ApiResponse<User> byPhone(@RequestParam String phone) {
-        return ApiResponse.ok("OK", userService.getByPhone(phone));
+        String normalized = PhoneUtil.normalize(phone); // 055... -> 994...
+        return ApiResponse.ok("OK", userService.getByPhone(normalized));
     }
 
     // ✅ NEW: reset password
     @PostMapping("/reset-password")
     public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest req) {
-        passwordResetService.resetPassword(req.getPhone(), req.getNewPassword());
+        String normalized = PhoneUtil.normalize(req.getPhone());
+        passwordResetService.resetPassword(normalized, req.getNewPassword());
         return ApiResponse.ok("Şifrə dəyişdirildi", null);
     }
 }
