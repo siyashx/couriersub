@@ -12,6 +12,7 @@ public class AdminUserDetailResponse {
     public boolean active;
     public VerifyStatus verifyStatus;
     public LocalDateTime createdAt;
+    public String password;
 
     // docs
     public String profileImageUrl;

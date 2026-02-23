@@ -4,6 +4,8 @@ import com.codesupreme.couriersub.common.ApiResponse;
 import com.codesupreme.couriersub.user.dto.LoginRequest;
 import com.codesupreme.couriersub.user.dto.RegisterRequest;
 import com.codesupreme.couriersub.user.entity.User;
+import com.codesupreme.couriersub.user.service.PasswordResetService;
+import com.codesupreme.couriersub.user.dto.ResetPasswordRequest;
 import com.codesupreme.couriersub.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserService userService;
+    private final PasswordResetService passwordResetService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, PasswordResetService passwordResetService) {
         this.userService = userService;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/register")
@@ -34,5 +38,12 @@ public class AuthController {
     @GetMapping("/by-phone")
     public ApiResponse<User> byPhone(@RequestParam String phone) {
         return ApiResponse.ok("OK", userService.getByPhone(phone));
+    }
+
+    // ✅ NEW: reset password
+    @PostMapping("/reset-password")
+    public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest req) {
+        passwordResetService.resetPassword(req.getPhone(), req.getNewPassword());
+        return ApiResponse.ok("Şifrə dəyişdirildi", null);
     }
 }

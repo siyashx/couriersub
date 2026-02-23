@@ -2,10 +2,7 @@ package com.codesupreme.couriersub.whatsapp.controller;
 
 import com.codesupreme.couriersub.whatsapp.group.WhatsAppGroupService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -28,5 +25,17 @@ public class WhatsAppGroupController {
             );
         }
     }
-}
 
+    @PostMapping("/try-add")
+    public Map<String, Object> tryAdd(@RequestParam String phone) {
+        try {
+            whatsAppGroupService.addToGroup(phone);
+            return Map.of("ok", true);
+        } catch (Exception ex) {
+            return Map.of(
+                    "ok", false,
+                    "message", "WhatsApp qrupuna əlavə etmə cəhdi alınmadı (Evolution API cavab vermədi)."
+            );
+        }
+    }
+}

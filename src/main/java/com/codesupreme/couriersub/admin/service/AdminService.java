@@ -72,6 +72,7 @@ public class AdminService {
         d.lastName = u.getLastName();
         d.phone = u.getPhone();
         d.active = u.isActive();
+        d.password = u.getPassword();
         d.verifyStatus = u.getVerifyStatus();
         d.createdAt = u.getCreatedAt();
 
